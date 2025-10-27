@@ -8,6 +8,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write
+
 jobs:
   build-test-publish:
     runs-on: ubuntu-latest
