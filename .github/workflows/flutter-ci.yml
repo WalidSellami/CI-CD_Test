@@ -30,11 +30,15 @@ jobs:
       - name: Flutter Pub Get
         run: flutter pub get
 
-      - name: Accept Android Licenses
-        run: yes | sdkmanager --licenses
+      - name: Accept Android SDK Licenses
+        run: | 
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
 
-      - name: Install Android NDK
-        run: sdkmanager "ndk;28.0.12433566"
+      - name: Install NDK
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;28.0.12433566"
 
       - name: Run Tests
         run: flutter test
