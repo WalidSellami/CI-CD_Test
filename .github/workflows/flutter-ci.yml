@@ -71,7 +71,7 @@ jobs:
       - run: npm install --global surge
 
       - name: Deploy to Surge
-        run: surge ./surge-deploy app-download.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+        run: surge ./surge-deploy new-app-release.surge.sh --token ${{ secrets.SURGE_TOKEN }}
 
       - name: Send Email Notification
         uses: dawidd6/action-send-mail@v3
@@ -80,13 +80,13 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "New App Build 🚀"
+          subject: "New App Release 🚀"
           body: |
             Hi 👋,
-            A new build of the Counter App is ready!
+            A new release of the Counter App is ready!
             You can download it from the link below:
 
-            📦 **https://app-download.surge.sh**
+            📦 **https://new-app-release.surge.sh**
 
           to: "ut6402@gmail.com"
           from: "<${{ secrets.EMAIL_USERNAME }}>"
