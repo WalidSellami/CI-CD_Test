@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download App</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: "Outfit", sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          letter-spacing: 0.5px;
+          height: 100vh;
+          background: linear-gradient(to bottom right, #82b8f5, #326aaa);
+          color: #fff;
+          text-align: center;
+          overflow: hidden;
+          animation: fadeIn 1s ease-in;
+        }
+
+        .container {
+          background: rgba(0, 0, 0, 0.35);
+          padding: 40px;
+          border-radius: 16px;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+          max-width: 90%;
+          width: 500px;
+          animation: slideUp 0.9s ease-out;
+        }
+
+        h1 {
+          margin-bottom: 16px;
+          font-size: 2rem;
+          animation: fadeInText 1.2s ease;
+        }
+
+        p {
+          margin: 10px 0;
+          font-size: 1.05rem;
+          line-height: 1.6;
+          opacity: 0.9;
+          animation: fadeInText 1.5s ease;
+        }
+
+        .download-btn {
+          display: inline-block;
+          margin-top: 25px;
+          padding: 14px 28px;
+          background: #fff;
+          color: #3c81d0;
+          font-weight: 600;
+          border-radius: 12px;
+          text-decoration: none;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          animation: popIn 1.8s ease;
+        }
+
+        .download-btn:hover {
+          background: #f8f8f8;
+          transform: translateY(-4px) scale(1.03);
+          box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes slideUp {
+          from {
+            transform: translateY(30px);
+            opacity: 0;
+          }
+
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes fadeInText {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes popIn {
+          0% {
+            transform: scale(0.9);
+            opacity: 0;
+          }
+
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .container {
+            width: 90%;
+            padding: 30px;
+          }
+
+          h1 {
+            font-size: 1.7rem;
+          }
+
+          p {
+            font-size: 1rem;
+          }
+
+          .download-btn {
+            font-size: 0.95rem;
+            padding: 12px 24px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          body {
+            padding: 20px;
+          }
+
+          .container {
+            width: 100%;
+            padding: 24px;
+          }
+
+          h1 {
+            font-size: 1.5rem;
+          }
+
+          .download-btn {
+            width: 100%;
+            padding: 14px 0;
+          }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>🎉 Your Download is Ready!</h1>
+    <p>The app will start downloading shortly.</p>
+    <p>If it doesn’t start automatically, click the button below:</p>
+    <a id="manual-download" class="download-btn" href="#" download>
+        Download APK
+    </a>
+</div>
+
+<script>
+    const apkUrl = "$APK_NAME";
+    const link = document.createElement("a");
+    link.href = apkUrl;
+    link.download = "$APK_NAME";
+    document.body.appendChild(link);
+    link.click();
+    document.getElementById("manual-download").href = apkUrl;
+</script>
+
+
+</body>
+
+</html>
