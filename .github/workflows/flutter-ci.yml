@@ -49,7 +49,7 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --split-per-abi
 
-      - name: Prepare deployment
+      - name: Prepare Deployment
         run: |
           mkdir surge-deploy
           APK_NAME="CounterApp_build-${{ github.run_number }}.apk"
@@ -62,6 +62,13 @@ jobs:
       
           # Replace placeholder with actual APK name
           sed -i "s/\$APK_NAME/$APK_NAME/g" surge-deploy/index.html
+          
+      - name: Setup Node and Install Surge
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.18.0'
+
+      - run: npm install --global surge
 
       - name: Deploy to Surge
         run: surge ./surge-deploy https://app-download.surge.sh --token ${{ secrets.SURGE_TOKEN }}
