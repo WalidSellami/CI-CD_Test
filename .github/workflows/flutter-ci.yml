@@ -71,7 +71,7 @@ jobs:
       - run: npm install --global surge
 
       - name: Deploy to Surge
-        run: surge ./surge-deploy https://app-download.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+        run: surge ./surge-deploy app-download.surge.sh --token ${{ secrets.SURGE_TOKEN }}
 
       - name: Send Email Notification
         uses: dawidd6/action-send-mail@v3
