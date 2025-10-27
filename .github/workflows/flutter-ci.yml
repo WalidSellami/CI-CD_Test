@@ -1,0 +1,62 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-test-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.6'
+
+      - name: Flutter Pub Get
+        run: flutter pub get
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Build APK
+        run: flutter build apk --release --split-per-abi
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "New Flutter Build 🚀"
+          body: |
+            Hi 👋
+            A new build of the Flutter Counter App is available!
+            Download it here:
+            ${{ steps.create_release.outputs.url }}
+          to: "ut6402@gmail.com"
+          from: "<${{ secrets.EMAIL_USERNAME }}>"
+
