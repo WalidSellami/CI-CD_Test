@@ -67,7 +67,7 @@ jobs:
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
-          token: ${{ secrets.FIREBASE_TOKEN }}
+          serviceCredentialsFileContent: ${{ secrets.SERVICE_ACCOUNT_KEY }}
           testers: ${{ secrets.TESTERS_EMAILS }}
           file: build/app/outputs/flutter-apk/Counter-${{ steps.version.outputs.version_name }}.apk
           releaseNotes: "New release available!"
