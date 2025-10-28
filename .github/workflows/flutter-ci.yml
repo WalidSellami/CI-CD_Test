@@ -49,44 +49,69 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --split-per-abi
 
-      - name: Prepare Deployment
+      - name: Get version name
+        id: version
         run: |
-          mkdir surge-deploy
-          APK_NAME="CounterApp_build-${{ github.run_number }}.apk"
-      
-          # Copy APK to deploy folder with renamed file
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk surge-deploy/$APK_NAME
-      
-          # Copy HTML template
-          cp template/download.html surge-deploy/index.html
-      
-          # Replace placeholder with actual APK name
-          sed -i "s/\$APK_NAME/$APK_NAME/g" surge-deploy/index.html
-          
-      - name: Setup Node and Install Surge
-        uses: actions/setup-node@v3
+          VERSION=$(git describe --tags --always || echo "v0.0.0")
+          echo "version_name=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Rename APK with version
+        run: |
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
+             build/app/outputs/flutter-apk/Counter-${{ steps.version.outputs.version_name }}.apk  
+
+
+      #  ---------------------- Firebase App Distribution ----------------------
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
-          node-version: '22.18.0'
+          appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          testers: ${{ secrets.TESTERS_EMAILS }}
+          file: build/app/outputs/flutter-apk/Counter-${{ steps.version.outputs.version_name }}.apk
+          releaseNotes: "New release available!"
 
-      - run: npm install --global surge
+      # ---------------------- Hosted download page ----------------------
 
-      - name: Deploy to Surge
-        run: surge ./surge-deploy new-app-release.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+#      - name: Prepare Deployment To Hosted Download Page
+#        run: |
+#          mkdir surge-deploy
+#          APK_NAME="CounterApp_build-${{ github.run_number }}.apk"
+#
+#          # Copy APK to deploy folder with renamed file
+#          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk surge-deploy/$APK_NAME
+#
+#          # Copy HTML template
+#          cp template/download.html surge-deploy/index.html
+#
+#          # Replace placeholder with actual APK name
+#          sed -i "s/\$APK_NAME/$APK_NAME/g" surge-deploy/index.html
+#
+#      - name: Setup Node and Install Surge
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: '22.18.0'
+#
+#      - run: npm install --global surge
+#
+#      - name: Deploy to Surge
+#        run: surge ./surge-deploy new-app-release.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+#
+#      - name: Send Email Notification
+#        uses: dawidd6/action-send-mail@v3
+#        with:
+#          server_address: smtp.gmail.com
+#          server_port: 465
+#          username: ${{ secrets.EMAIL_USERNAME }}
+#          password: ${{ secrets.EMAIL_PASSWORD }}
+#          subject: "New App Release 🚀"
+#          body: |
+#            Hi 👋,
+#            A new release of the Counter App is ready!
+#            You can download it from the link below:
+#
+#            📦 https://new-app-release.surge.sh
 
-      - name: Send Email Notification
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "New App Release 🚀"
-          body: |
-            Hi 👋,
-            A new release of the Counter App is ready!
-            You can download it from the link below:
-
-            📦 **https://new-app-release.surge.sh**
-
-          to: "ut6402@gmail.com"
-          from: "<${{ secrets.EMAIL_USERNAME }}>"
+#          to: "ut6402@gmail.com"
+#          from: "<${{ secrets.EMAIL_USERNAME }}>"
