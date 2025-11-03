@@ -1,16 +1,24 @@
-# counter
+# Flutter CI/CD with Firebase App Distribution & Hosted Download Page
 
-A new Flutter project.
+This repository uses **GitHub Actions** to automate the **build and release process** for the Flutter app ensuring fast, consistent, and reliable delivery.
 
-## Getting Started
+## ⚙️ Workflow Overview
 
-This project is a starting point for a Flutter application.
+On every **push** to the `master` branch, the workflow performs the following steps:
 
-A few resources to get you started if this is your first Flutter project:
+1. **Setup Environment**
+    - The workflow installs Flutter and project dependencies.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+2. **Build APK**
+    - Builds a release APK.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+3. **Version & Rename**
+    - Automatically renames the APK with the current Git tag or commit version.
+
+4. **Firebase App Distribution**
+    - Uploads the built APK to **Firebase App Distribution**
+    - Notifies testers via Firebase
+
+5. **Hosted Download Page**
+    - Publishes a simple HTML download page
+    - Provides direct download links for testers or stakeholders via mail.

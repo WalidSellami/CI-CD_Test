@@ -70,23 +70,25 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.SERVICE_ACCOUNT_KEY }}
           testers: ${{ secrets.TESTERS_EMAILS }}
           file: build/app/outputs/flutter-apk/Counter-${{ steps.version.outputs.version_name }}.apk
-          releaseNotes: "New release available!"
+          releaseNotes: "Hi 👋, A new release of the App is ready! Check it out."
 
       # ---------------------- Hosted download page ----------------------
 
 #      - name: Prepare Deployment To Hosted Download Page
 #        run: |
-#          mkdir surge-deploy
-#          APK_NAME="CounterApp_build-${{ github.run_number }}.apk"
+#          mkdir -p surge-deploy
+#          APK_NAME="Counter-${{ steps.version.outputs.version_name }}.apk"
+#          APK_PATH="build/app/outputs/flutter-apk/$APK_NAME"
 #
-#          # Copy APK to deploy folder with renamed file
-#          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk surge-deploy/$APK_NAME
+#          # Copy APK to deploy folder
+#          cp "$APK_PATH" surge-deploy/
 #
 #          # Copy HTML template
 #          cp template/download.html surge-deploy/index.html
 #
 #          # Replace placeholder with actual APK name
 #          sed -i "s/\$APK_NAME/$APK_NAME/g" surge-deploy/index.html
+#          # sed -i "s|\$APK_NAME|$APK_NAME|g surge-deploy/index.html # If it includes directories (../..).
 #
 #      - name: Setup Node and Install Surge
 #        uses: actions/setup-node@v3
@@ -113,5 +115,5 @@ jobs:
 #
 #            📦 https://new-app-release.surge.sh
 
-#          to: "ut6402@gmail.com"
+#          to: "${{ secrets.TESTERS_EMAILS }}"
 #          from: "<${{ secrets.EMAIL_USERNAME }}>"
