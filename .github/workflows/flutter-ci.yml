@@ -46,6 +46,14 @@ jobs:
       - name: Run Tests
         run: flutter test
 
+      - name: Bump build version
+        run: |
+          echo "🔄 Updating pubspec.yaml version ..."
+          VERSION_BASE="1.0.0"
+          VERSION_CODE=${GITHUB_RUN_NUMBER}
+          sed -i "s/^version: .*/version: ${VERSION_BASE}+${VERSION_CODE}/" pubspec.yaml
+          echo "✅ Version updated to ${VERSION_BASE}+${VERSION_CODE}"  
+
       - name: Build APK
         run: flutter build apk --release --split-per-abi
 
