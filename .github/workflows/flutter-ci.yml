@@ -46,28 +46,28 @@ jobs:
       - name: Run Tests
         run: flutter test
 
-      - name: Bump build version
-        run: |
-          echo "🔄 Updating pubspec.yaml version ..."
-          VERSION_BASE="1.0.0"
-          VERSION_CODE=${GITHUB_RUN_NUMBER}
-          sed -i "s/^version: .*/version: ${VERSION_BASE}+${VERSION_CODE}/" pubspec.yaml
-          echo "✅ Version updated to ${VERSION_BASE}+${VERSION_CODE}"  
-
       - name: Build APK
         run: flutter build apk --release --split-per-abi
 
-      - name: Get version name
+      - name: Read version from pubspec.yaml
         id: version
         run: |
-          VERSION=$(git describe --tags --always || echo "v0.0.0")
-          echo "version_name=$VERSION" >> $GITHUB_OUTPUT
+          version_line=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          version_name=$(echo $version_line | cut -d'+' -f1)
+          
+          echo "version_name=$version_name" >> $GITHUB_OUTPUT
 
-      - name: Rename APK with version
+      - name: Rename APK
         run: |
-          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
-             build/app/outputs/flutter-apk/Counter-${{ steps.version.outputs.version_name }}.apk  
-
+          APK_NAME="Counter-(${{ steps.version.outputs.version_name }}).apk"
+          APK_PATH="build/app/outputs/flutter-apk/$APK_NAME"
+          
+          # Save environment variables for later steps
+          echo "APK_NAME=$APK_NAME" >> $GITHUB_ENV
+          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
+          
+          # Rename the default generated APK
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "$APK_PATH"
 
       #  ---------------------- Firebase App Distribution ----------------------
 
@@ -77,51 +77,51 @@ jobs:
           appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
           serviceCredentialsFileContent: ${{ secrets.SERVICE_ACCOUNT_KEY }}
           testers: ${{ secrets.TESTERS_EMAILS }}
-          file: build/app/outputs/flutter-apk/Counter-${{ steps.version.outputs.version_name }}.apk
+          file: ${{ env.APK_PATH }}
           releaseNotes: "Hi 👋, A new release of the App is ready! Check it out."
 
       # ---------------------- Hosted download page ----------------------
 
-#      - name: Prepare Deployment To Hosted Download Page
-#        run: |
-#          mkdir -p surge-deploy
-#          APK_NAME="Counter-${{ steps.version.outputs.version_name }}.apk"
-#          APK_PATH="build/app/outputs/flutter-apk/$APK_NAME"
-#
-#          # Copy APK to deploy folder
-#          cp "$APK_PATH" surge-deploy/
-#
-#          # Copy HTML template
-#          cp template/download.html surge-deploy/index.html
-#
-#          # Replace placeholder with actual APK name
-#          sed -i "s/\$APK_NAME/$APK_NAME/g" surge-deploy/index.html
-#          # sed -i "s|\$APK_NAME|$APK_NAME|g surge-deploy/index.html # If it includes directories (../..).
-#
-#      - name: Setup Node and Install Surge
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version: '22.18.0'
-#
-#      - run: npm install --global surge
-#
-#      - name: Deploy to Surge
-#        run: surge ./surge-deploy new-app-release.surge.sh --token ${{ secrets.SURGE_TOKEN }}
-#
-#      - name: Send Email Notification
-#        uses: dawidd6/action-send-mail@v3
-#        with:
-#          server_address: smtp.gmail.com
-#          server_port: 465
-#          username: ${{ secrets.EMAIL_USERNAME }}
-#          password: ${{ secrets.EMAIL_PASSWORD }}
-#          subject: "New App Release 🚀"
-#          body: |
-#            Hi 👋,
-#            A new release of the Counter App is ready!
-#            You can download it from the link below:
-#
-#            📦 https://new-app-release.surge.sh
+      - name: Prepare Deployment To Hosted Download Page
+        run: |
+          mkdir -p surge-deploy
+          APK_NAME="${{ env.APK_NAME }}"
+          APK_PATH="${{ env.APK_PATH }}"
+        
+          # Copy APK to deploy folder
+          cp "$APK_PATH" surge-deploy/
 
-#          to: "${{ secrets.TESTERS_EMAILS }}"
-#          from: "<${{ secrets.EMAIL_USERNAME }}>"
+          # Copy HTML template
+          cp template/download.html surge-deploy/index.html
+
+          # Replace placeholder with actual APK name
+          sed -i "s/\\$APK_NAME/$APK_NAME/g" surge-deploy/index.html
+          # sed -i "s|\\$APK_NAME|$APK_NAME|g" surge-deploy/index.html # If it includes directories (../..).
+
+      - name: Setup Node and Install Surge
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.18.0'
+
+      - run: npm install --global surge
+
+      - name: Deploy to Surge
+        run: surge ./surge-deploy new-app-release.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "New App Release 🚀"
+          body: |
+            Hi 👋,
+            A new release of the Counter App is ready!
+            You can download it from the link below:
+
+            📦 https://new-app-release.surge.sh
+
+          to: "${{ secrets.TESTERS_EMAILS }}"
+          from: "<${{ secrets.EMAIL_USERNAME }}>"
