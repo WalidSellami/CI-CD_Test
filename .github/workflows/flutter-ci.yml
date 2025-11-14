@@ -95,8 +95,7 @@ jobs:
           cp template/download.html surge-deploy/index.html
 
           # Replace placeholder with actual APK name
-          sed -i "s/\\$APK_NAME/$APK_NAME/g" surge-deploy/index.html
-          # sed -i "s|\\$APK_NAME|$APK_NAME|g" surge-deploy/index.html # If it includes directories (../..).
+          sed -i "s/\$APK_NAME/$APK_NAME/g" surge-deploy/index.html
 
       - name: Setup Node and Install Surge
         uses: actions/setup-node@v3
@@ -112,16 +111,16 @@ jobs:
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
-          server_port: 465
+          server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "New App Release 🚀"
           body: |
             Hi 👋,
-            A new release of the Counter App is ready!
+            A new release is ready!
             You can download it from the link below:
 
             📦 https://new-app-release.surge.sh
 
           to: "${{ secrets.TESTERS_EMAILS }}"
-          from: "<${{ secrets.EMAIL_USERNAME }}>"
+          from: "Admin <${{ secrets.EMAIL_USERNAME }}>"
